@@ -1,5 +1,5 @@
 import './App.css';
-import { createNote, deleteNote} from './graphql/mutations'
+import { createNote, deleteNote, updateNote} from './graphql/mutations'
 import { listNotes } from './graphql/queries'
 import { withAuthenticator, Button, Text, Flex, Heading } from "@aws-amplify/ui-react";
 import { useCallback, useEffect, useState } from 'react';
@@ -37,6 +37,19 @@ function App({ signOut }) {
   useEffect(() => {
     fetchNotes()
   }, [fetchNotes])
+  
+    const handleUpdateNote = useCallback(async (id) => { // updateNote
+    await API.graphql({
+      query: updateNote,
+      variables: {input: { id: id, text: window.prompt("update note") } },
+      authMode: 'AMAZON_COGNITO_USER_POOLS'
+    })
+    fetchNotes()
+  }, [fetchNotes])
+
+  useEffect(() => {
+    fetchNotes()
+  }, [fetchNotes])
 
   return (
     <Flex direction={"column"}>
@@ -46,6 +59,7 @@ function App({ signOut }) {
       </Flex>
       {notes.map(note => <Flex alignItems={'center'}>
         <Text>{note.text}</Text>
+        <Button onClick={() => handleUpdateNote(note.id)}>Update Note</Button>
         <Button onClick={() => handleDeleteNote(note.id)}>Remove</Button>
       </Flex>)}
       <Button onClick={handleCreateNote}>Add Note</Button>
